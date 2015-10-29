@@ -750,17 +750,16 @@ let NERDSpaceDelims = 1                     "在左注释符之后，右注释�
 "  < nerdtree 插件配置 >
 " -----------------------------------------------------------------------------
 " 有目录村结构的文件浏览插件
-let Tlist_Ctags_Cmd = "/usr/bin/ctags"
+" let Tlist_Ctags_Cmd = "/usr/bin/ctags"
 " 常规模式下输入 F2 调用插件
-nmap <F2> :NERDTreeToggle<CR>
-let g:NERDTreeWinPos="left"
-let g:NERDTreeWinSize=25
-let g:NERDTreeShowLineNumbers=1
-let g:neocomplcache_enable_at_startup = 1 
-let g:NERDTreeDirArrows = 1
-let g:NERDTreeDirArrowExpandable = '›'
-let g:NERDTreeDirArrowCollapsible = '­'
-
+ nmap <F2> :NERDTreeToggle<CR>
+" let g:NERDTreeWinPos="left"
+" let g:NERDTreeWinSize=25
+" let g:NERDTreeShowLineNumbers=1
+" let g:neocomplcache_enable_at_startup = 1 
+" let g:NERDTreeDirArrows = 1
+ let g:NERDTreeDirArrowExpandable = "+"
+ let g:NERDTreeDirArrowCollapsible = "~"
 
 " -----------------------------------------------------------------------------
 "  < omnicppcomplete 插件配置 >
