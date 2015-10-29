@@ -25,7 +25,6 @@ endif
 set hlsearch        "高亮搜索
 set incsearch       "在输入要搜索的文字时，实时匹配
 
-
 " -----------------------------------------------------------------------------
 "  < Linux Gvim/Vim 默认配置> 做了一点修改
 " -----------------------------------------------------------------------------
@@ -105,7 +104,6 @@ if (g:iswindows && g:isGUI)
     endfunction
 endif
 
-
 " =============================================================================
 "                          << 以下为用户自定义配置 >>
 " =============================================================================
@@ -161,8 +159,11 @@ Bundle 'TxtBrowser'
 Bundle 'ZoomWin'
 Bundle 'bling/vim-airline'
 Bundle 'evidens/vim-twig'
-
-
+Bundle 'terryma/vim-multiple-cursors'
+Bundle 'xml.vim'
+Bundle 'maksimr/vim-jsbeautify'
+Bundle 'json.vim'
+Bundle 'JulesWang/css.vim'
 " -----------------------------------------------------------------------------
 "  < 编码配置 >
 " -----------------------------------------------------------------------------
@@ -183,7 +184,6 @@ if (g:iswindows && g:isGUI)
     "解决consle输出乱码
     language messages zh_CN.utf-8
 endif
-
 
 " -----------------------------------------------------------------------------
 "  < 编写文件时的配置 >
@@ -277,339 +277,6 @@ if g:isGUI
     \endif<CR>
 endif
 
-
-" -----------------------------------------------------------------------------
-"  < 编译、连接、运行配置 (目前只配置了C、C++、Java语言)>
-" -----------------------------------------------------------------------------
-" F9 一键保存、编译、连接存并运行
-nmap <F9> :call Run()<CR>
-imap <F9> <ESC>:call Run()<CR>
-
-" Ctrl + F9 一键保存并编译
-nmap <c-F9> :call Compile()<CR>
-imap <c-F9> <ESC>:call Compile()<CR>
-
-" Ctrl + F10 一键保存并连接
-nmap <c-F10> :call Link()<CR>
-imap <c-F10> <ESC>:call Link()<CR>
-
-let s:LastShellReturn_C = 0
-let s:LastShellReturn_L = 0
-let s:ShowWarning = 1
-let s:Obj_Extension = '.o'
-let s:Exe_Extension = '.exe'
-let s:Class_Extension = '.class'
-let s:Sou_Error = 0
-
-let s:windows_CFlags = 'gcc\ -fexec-charset=gbk\ -Wall\ -g\ -O0\ -c\ %\ -o\ %<.o'
-let s:linux_CFlags = 'gcc\ -Wall\ -g\ -O0\ -c\ %\ -o\ %<.o'
-
-let s:windows_CPPFlags = 'g++\ -fexec-charset=gbk\ -Wall\ -g\ -O0\ -c\ %\ -o\ %<.o'
-let s:linux_CPPFlags = 'g++\ -Wall\ -g\ -O0\ -c\ %\ -o\ %<.o'
-
-let s:JavaFlags = 'javac\ %'
-
-func! Compile()
-    exe ":ccl"
-    exe ":update"
-    let s:Sou_Error = 0
-    let s:LastShellReturn_C = 0
-    let Sou = expand("%:p")
-    let v:statusmsg = ''
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let Obj = expand("%:p:r").s:Obj_Extension
-        let Obj_Name = expand("%:p:t:r").s:Obj_Extension
-        if !filereadable(Obj) || (filereadable(Obj) && (getftime(Obj) < getftime(Sou)))
-            redraw!
-            if expand("%:e") == "c"
-                if g:iswindows
-                    exe ":setlocal makeprg=".s:windows_CFlags
-                else
-                    exe ":setlocal makeprg=".s:linux_CFlags
-                endif
-                echohl WarningMsg | echo " compiling..."
-                silent make
-            elseif expand("%:e") == "cpp" || expand("%:e") == "cxx"
-                if g:iswindows
-                    exe ":setlocal makeprg=".s:windows_CPPFlags
-                else
-                    exe ":setlocal makeprg=".s:linux_CPPFlags
-                endif
-                echohl WarningMsg | echo " compiling..."
-                silent make
-            endif
-            redraw!
-            if v:shell_error != 0
-                let s:LastShellReturn_C = v:shell_error
-            endif
-            if g:iswindows
-                if s:LastShellReturn_C != 0
-                    exe ":bo cope"
-                    echohl WarningMsg | echo " compilation failed"
-                else
-                    if s:ShowWarning
-                        exe ":bo cw"
-                    endif
-                    echohl WarningMsg | echo " compilation successful"
-                endif
-            else
-                if empty(v:statusmsg)
-                    echohl WarningMsg | echo " compilation successful"
-                else
-                    exe ":bo cope"
-                endif
-            endif
-        else
-            echohl WarningMsg | echo ""Obj_Name"is up to date"
-        endif
-    elseif expand("%:e") == "java"
-        let class = expand("%:p:r").s:Class_Extension
-        let class_Name = expand("%:p:t:r").s:Class_Extension
-        if !filereadable(class) || (filereadable(class) && (getftime(class) < getftime(Sou)))
-            redraw!
-            exe ":setlocal makeprg=".s:JavaFlags
-            echohl WarningMsg | echo " compiling..."
-            silent make
-            redraw!
-            if v:shell_error != 0
-                let s:LastShellReturn_C = v:shell_error
-            endif
-            if g:iswindows
-                if s:LastShellReturn_C != 0
-                    exe ":bo cope"
-                    echohl WarningMsg | echo " compilation failed"
-                else
-                    if s:ShowWarning
-                        exe ":bo cw"
-                    endif
-                    echohl WarningMsg | echo " compilation successful"
-                endif
-            else
-                if empty(v:statusmsg)
-                    echohl WarningMsg | echo " compilation successful"
-                else
-                    exe ":bo cope"
-                endif
-            endif
-        else
-            echohl WarningMsg | echo ""class_Name"is up to date"
-        endif
-    else
-        let s:Sou_Error = 1
-        echohl WarningMsg | echo " please choose the correct source file"
-    endif
-    exe ":setlocal makeprg=make"
-endfunc
-
-func! Link()
-    call Compile()
-    if s:Sou_Error || s:LastShellReturn_C != 0
-        return
-    endif
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let s:LastShellReturn_L = 0
-        let Sou = expand("%:p")
-        let Obj = expand("%:p:r").s:Obj_Extension
-        if g:iswindows
-            let Exe = expand("%:p:r").s:Exe_Extension
-            let Exe_Name = expand("%:p:t:r").s:Exe_Extension
-        else
-            let Exe = expand("%:p:r")
-            let Exe_Name = expand("%:p:t:r")
-        endif
-        let v:statusmsg = ''
-        if filereadable(Obj) && (getftime(Obj) >= getftime(Sou))
-            redraw!
-            if !executable(Exe) || (executable(Exe) && getftime(Exe) < getftime(Obj))
-                if expand("%:e") == "c"
-                    setlocal makeprg=gcc\ -o\ %<\ %<.o
-                    echohl WarningMsg | echo " linking..."
-                    silent make
-                elseif expand("%:e") == "cpp" || expand("%:e") == "cxx"
-                    setlocal makeprg=g++\ -o\ %<\ %<.o
-                    echohl WarningMsg | echo " linking..."
-                    silent make
-                endif
-                redraw!
-                if v:shell_error != 0
-                    let s:LastShellReturn_L = v:shell_error
-                endif
-                if g:iswindows
-                    if s:LastShellReturn_L != 0
-                        exe ":bo cope"
-                        echohl WarningMsg | echo " linking failed"
-                    else
-                        if s:ShowWarning
-                            exe ":bo cw"
-                        endif
-                        echohl WarningMsg | echo " linking successful"
-                    endif
-                else
-                    if empty(v:statusmsg)
-                        echohl WarningMsg | echo " linking successful"
-                    else
-                        exe ":bo cope"
-                    endif
-                endif
-            else
-                echohl WarningMsg | echo ""Exe_Name"is up to date"
-            endif
-        endif
-        setlocal makeprg=make
-    elseif expand("%:e") == "java"
-        return
-    endif
-endfunc
-
-func! Run()
-    let s:ShowWarning = 0
-    call Link()
-    let s:ShowWarning = 1
-    if s:Sou_Error || s:LastShellReturn_C != 0 || s:LastShellReturn_L != 0
-        return
-    endif
-    let Sou = expand("%:p")
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let Obj = expand("%:p:r").s:Obj_Extension
-        if g:iswindows
-            let Exe = expand("%:p:r").s:Exe_Extension
-        else
-            let Exe = expand("%:p:r")
-        endif
-        if executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-            redraw!
-            echohl WarningMsg | echo " running..."
-            if g:iswindows
-                exe ":!%<.exe"
-            else
-                if g:isGUI
-                    exe ":!gnome-terminal -x bash -c './%<; echo; echo 请按 Enter 键继续; read'"
-                else
-                    exe ":!clear; ./%<"
-                endif
-            endif
-            redraw!
-            echohl WarningMsg | echo " running finish"
-        endif
-    elseif expand("%:e") == "java"
-        let class = expand("%:p:r").s:Class_Extension
-        if getftime(class) >= getftime(Sou)
-            redraw!
-            echohl WarningMsg | echo " running..."
-            if g:iswindows
-                exe ":!java %<"
-            else
-                if g:isGUI
-                    exe ":!gnome-terminal -x bash -c 'java %<; echo; echo 请按 Enter 键继续; read'"
-                else
-                    exe ":!clear; java %<"
-                endif
-            endif
-            redraw!
-            echohl WarningMsg | echo " running finish"
-        endif
-    endif
-endfunc
-
-
-" -----------------------------------------------------------------------------
-"  < 在浏览器中预览 Html 或 PHP 文件 >
-" -----------------------------------------------------------------------------
-" 修改前请先通读此模块，明白了再改以避免错误
-
-" F5 加浏览器名称缩写调用浏览器预览，启用前先确定有安装相应浏览器，并在下面的配置好其安装目录
-if g:iswindows
-    "以下为只支持Windows系统的浏览器
-
-    " 调用系统IE浏览器预览，如果已卸载可将其注释
-    nmap <F5>ie :call ViewInBrowser("ie")<cr>
-    imap <F5>ie <ESC>:call ViewInBrowser("ie")<cr>
-
-    " 调用IETester(IE测试工具)预览，如果有安装可取消注释
-    " nmap <F5>ie6 :call ViewInBrowser("ie6")<cr>
-    " imap <F5>ie6 <ESC>:call ViewInBrowser("ie6")<cr>
-    " nmap <F5>ie7 :call ViewInBrowser("ie7")<cr>
-    " imap <F5>ie7 <ESC>:call ViewInBrowser("ie7")<cr>
-    " nmap <F5>ie8 :call ViewInBrowser("ie8")<cr>
-    " imap <F5>ie8 <ESC>:call ViewInBrowser("ie8")<cr>
-    " nmap <F5>ie9 :call ViewInBrowser("ie9")<cr>
-    " imap <F5>ie9 <ESC>:call ViewInBrowser("ie9")<cr>
-    " nmap <F5>ie10 :call ViewInBrowser("ie10")<cr>
-    " imap <F5>ie10 <ESC>:call ViewInBrowser("ie10")<cr>
-    " nmap <F5>iea :call ViewInBrowser("iea")<cr>
-    " imap <F5>iea <ESC>:call ViewInBrowser("iea")<cr>
-elseif g:islinux
-    "以下为只支持Linux系统的浏览器
-    "暂未配置，待有时间再弄了
-endif
-
-"以下为支持Windows与Linux系统的浏览器
-
-" 调用Firefox浏览器预览，如果有安装可取消注释
-" nmap <F5>ff :call ViewInBrowser("ff")<cr>
-" imap <F5>ff <ESC>:call ViewInBrowser("ff")<cr>
-
-" 调用Maxthon(遨游)浏览器预览，如果有安装可取消注释
-" nmap <F5>ay :call ViewInBrowser("ay")<cr>
-" imap <F5>ay <ESC>:call ViewInBrowser("ay")<cr>
-
-" 调用Opera浏览器预览，如果有安装可取消注释
-" nmap <F5>op :call ViewInBrowser("op")<cr>
-" imap <F5>op <ESC>:call ViewInBrowser("op")<cr>
-
-" 调用Chrome浏览器预览，如果有安装可取消注释
-" nmap <F5>cr :call ViewInBrowser("cr")<cr>
-" imap <F5>cr <ESC>:call ViewInBrowser("cr")<cr>
-
-" 浏览器调用函数
-function! ViewInBrowser(name)
-    if expand("%:e") == "php" || expand("%:e") == "html"
-        exe ":update"
-        if g:iswindows
-            "获取要预览的文件路径，并将路径中的'\'替换为'/'，同时将路径文字的编码转换为gbk（同cp936）
-            let file = iconv(substitute(expand("%:p"), '\', '/', "g"), "utf-8", "gbk")
-
-            "浏览器路径设置，路径中使用'/'斜杠，更改路径请更改双引号里的内容
-            "下面只启用了系统IE浏览器，如需启用其它的可将其取消注释（得先安装，并配置好安装路径），也可按需增减
-            let SystemIE = "C:/progra~1/intern~1/iexplore.exe"  "系统自带IE目录
-            " let IETester = "F:/IETester/IETester.exe"           "IETester程序目录（可按实际更改）
-            " let Chrome = "F:/Chrome/Chrome.exe"                 "Chrome程序目录（可按实际更改）
-            " let Firefox = "F:/Firefox/Firefox.exe"              "Firefox程序目录（可按实际更改）
-            " let Opera = "F:/Opera/opera.exe"                    "Opera程序目录（可按实际更改）
-            " let Maxthon = "C:/Progra~2/Maxthon/Bin/Maxthon.exe" "Maxthon程序目录（可按实际更改）
-
-            "本地虚拟服务器设置，我测试的是phpStudy2014，可根据自己的修改，更改路径请更改双引号里的内容
-            let htdocs ="F:/phpStudy2014/WWW/"                  "虚拟服务器地址或目录（可按实际更改）
-            let url = "localhost"                               "虚拟服务器网址（可按实际更改）
-        elseif g:islinux
-            "暂时还没有配置，有时间再弄了。
-        endif
-
-        "浏览器调用缩写，可根据实际增减，注意，上面浏览器路径中没有定义过的变量（等号右边为变量）不能出现在下面哟（可将其注释或删除）
-        let l:browsers = {}                             "定义缩写字典变量，此行不能删除或注释
-        " let l:browsers["cr"] = Chrome                   "Chrome浏览器缩写
-        " let l:browsers["ff"] = Firefox                  "Firefox浏览器缩写
-        " let l:browsers["op"] = Opera                    "Opera浏览器缩写
-        " let l:browsers["ay"] = Maxthon                  "遨游浏览器缩写
-        let l:browsers["ie"] = SystemIE                 "系统IE浏览器缩写
-        " let l:browsers["ie6"] = IETester."-ie6"         "调用IETESTER工具以IE6预览缩写（变量加参数）
-        " let l:browsers["ie7"] = IETester."-ie7"         "调用IETESTER工具以IE7预览缩写（变量加参数）
-        " let l:browsers["ie8"] = IETester."-ie8"         "调用IETESTER工具以IE8预览缩写（变量加参数）
-        " let l:browsers["ie9"] = IETester."-ie9"         "调用IETESTER工具以IE9预览缩写（变量加参数）
-        " let l:browsers["ie10"] = IETester."-ie10"       "调用IETESTER工具以IE10预览缩写（变量加参数）
-        " let l:browsers["iea"] = IETester."-al"          "调用IETESTER工具以支持的所有IE版本预览缩写（变量加参数）
-
-        if stridx(file, htdocs) == -1   "文件不在本地虚拟服务器目录，则直接预览（但不能解析PHP文件）
-           exec ":silent !start ". l:browsers[a:name] ." file://" . file
-        else    "文件在本地虚拟服务器目录，则调用本地虚拟服务器解析预览（先启动本地虚拟服务器）
-            let file = substitute(file, htdocs, "http://".url."/", "g")    "转换文件路径为虚拟服务器网址路径
-            exec ":silent !start ". l:browsers[a:name] file
-        endif
-    else
-        echohl WarningMsg | echo " please choose the correct source file"
-    endif
-endfunction
-
 " -----------------------------------------------------------------------------
 "  < 其它配置 >
 " -----------------------------------------------------------------------------
@@ -618,64 +285,8 @@ set nobackup                                "设置无备份文件
 " set noswapfile                              "设置无临时文件
 " set vb t_vb=                                "关闭提示音
 
-
-" =============================================================================
-"                          << 以下为常用插件配置 >>
-" =============================================================================
-
-" -----------------------------------------------------------------------------
-"  < a.vim 插件配置 >
-" -----------------------------------------------------------------------------
-" 用于切换C/C++头文件
-" :A     ---切换头文件并独占整个窗口
-" :AV    ---切换头文件并垂直分割窗口
-" :AS    ---切换头文件并水平分割窗口
-
-" -----------------------------------------------------------------------------
-"  < Align 插件配置 >
-" -----------------------------------------------------------------------------
-" 一个对齐的插件，用来——排版与对齐代码，功能强大，不过用到的机会不多
-
-" -----------------------------------------------------------------------------
-"  < auto-pairs 插件配置 >
-" -----------------------------------------------------------------------------
-" 用于括号与引号自动补全，不过会与函数原型提示插件echofunc冲突
-" 所以我就没有加入echofunc插件
-
-" -----------------------------------------------------------------------------
-"  < BufExplorer 插件配置 >
-" -----------------------------------------------------------------------------
-" 快速轻松的在缓存中切换（相当于另一种多个文件间的切换方式）
-" <Leader>be 在当前窗口显示缓存列表并打开选定文件
-" <Leader>bs 水平分割窗口显示缓存列表，并在缓存列表窗口中打开选定文件
-" <Leader>bv 垂直分割窗口显示缓存列表，并在缓存列表窗口中打开选定文件
-
-" -----------------------------------------------------------------------------
-"  < ccvext.vim 插件配置 >
-" -----------------------------------------------------------------------------
-" 用于对指定文件自动生成tags与cscope文件并连接
-" 如果是Windows系统, 则生成的文件在源文件所在盘符根目录的.symbs目录下(如: X:\.symbs\)
-" 如果是Linux系统, 则生成的文件在~/.symbs/目录下
-" 具体用法可参考www.vim.org中此插件的说明
-" <Leader>sy 自动生成tags与cscope文件并连接
-" <Leader>sc 连接已存在的tags与cscope文件
-
-" -----------------------------------------------------------------------------
-"  < cSyntaxAfter 插件配置 >
-" -----------------------------------------------------------------------------
 " 高亮括号与运算符等
 au! BufRead,BufNewFile,BufEnter *.{c,cpp,h,java,javascript} call CSyntaxAfter()
-
-" -----------------------------------------------------------------------------
-"  < ctrlp.vim 插件配置 >
-" -----------------------------------------------------------------------------
-" 一个全路径模糊文件，缓冲区，最近最多使用，... 检索插件；详细帮助见 :h ctrlp
-" 常规模式下输入：Ctrl + p 调用插件
-
-" -----------------------------------------------------------------------------
-"  < emmet-vim（前身为Zen coding） 插件配置 >
-" -----------------------------------------------------------------------------
-" HTML/CSS代码快速编写神器，详细帮助见 :h emmet.txt
 
 " -----------------------------------------------------------------------------
 "  < indentLine 插件配置 >
@@ -689,18 +300,10 @@ nmap <leader>il :IndentLinesToggle<CR>
 if g:isGUI
     let g:indentLine_char = "¦"
     let g:indentLine_first_char = "¦"
+    let g:indentLine_color_gui = "#26282b"
+else
+    let g:indentLine_color_term = 216
 endif
-
-" 设置终端对齐线颜色，如果不喜欢可以将其注释掉采用默认颜色
-"let g:indentLine_color_term = 239
-
-" 设置 GUI 对齐线颜色，如果不喜欢可以将其注释掉采用默认颜色
-" let g:indentLine_color_gui = '#A4E57E'
-
-" -----------------------------------------------------------------------------
-"  < vim-javacompleteex（也就是 javacomplete 增强版）插件配置 >
-" -----------------------------------------------------------------------------
-" java 补全插件
 
 " -----------------------------------------------------------------------------
 "  < Mark--Karkat（也就是 Mark） 插件配置 >
@@ -718,12 +321,6 @@ let g:miniBufExplMapWindowNavArrows = 1     "用Ctrl加方向键切换到上下�
 "let g:miniBufExplMapCTabSwitchBufs = 1      "功能增强（不过好像只有在Windows中才有用）
 " "                                            <C-Tab> 向前循环切换到每个buffer上,并在但前窗口打开
 " "                                            <C-S-Tab> 向后循环切换到每个buffer上,并在当前窗口打开
-
-" 在不使用 MiniBufExplorer 插件时也可用<C-k,j,h,l>切换到上下左右的窗口中去
-" noremap <c-k> <c-w>k
-" noremap <c-j> <c-w>j
-" noremap <c-h> <c-w>h
-" noremap <c-l> <c-w>l
 
 " -----------------------------------------------------------------------------
 "  < neocomplcache 插件配置 >
@@ -752,14 +349,14 @@ let NERDSpaceDelims = 1                     "在左注释符之后，右注释�
 " 有目录村结构的文件浏览插件
 " let Tlist_Ctags_Cmd = "/usr/bin/ctags"
 " 常规模式下输入 F2 调用插件
- nmap <F2> :NERDTreeToggle<CR>
-" let g:NERDTreeWinPos="left"
-" let g:NERDTreeWinSize=25
-" let g:NERDTreeShowLineNumbers=1
-" let g:neocomplcache_enable_at_startup = 1 
-" let g:NERDTreeDirArrows = 1
- let g:NERDTreeDirArrowExpandable = "+"
- let g:NERDTreeDirArrowCollapsible = "~"
+nmap <F2> :NERDTreeToggle<CR>
+"let g:NERDTreeWinPos="left"
+"let g:NERDTreeWinSize=25
+"let g:NERDTreeShowLineNumbers=1
+"let g:neocomplcache_enable_at_startup = 1 
+"let g:NERDTreeDirArrows = 1
+"let g:NERDTreeDirArrowExpandable = "›"
+"let g:NERDTreeDirArrowCollapsible = "~"
 
 " -----------------------------------------------------------------------------
 "  < omnicppcomplete 插件配置 >
@@ -771,6 +368,7 @@ let NERDSpaceDelims = 1                     "在左注释符之后，右注释�
 " 我使用上面的参数生成标签后，对函数使用跳转时会出现多个选择
 " 所以我就将--c++-kinds=+p参数给去掉了，如果大侠有什么其它解决方法希望不要保留呀
 set completeopt=menu                        "关闭预览窗口
+
 
 " -----------------------------------------------------------------------------
 "  < powerline 插件配置 >
@@ -802,6 +400,7 @@ nmap <F3> :SrcExplToggle<CR>                "打开/闭浏览窗口
 
 " 启用 // 注视风格
 let c_cpp_comments = 0
+
 
 " -----------------------------------------------------------------------------
 "  < surround 插件配置 >
@@ -1000,4 +599,4 @@ au BufRead,BufNewFile,BufEnter * cd %:p:h
 "===================================================================================
 " 快速注释
 
-
+" 自动缩进
