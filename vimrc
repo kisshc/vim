@@ -166,6 +166,7 @@ Bundle 'json.vim'
 Bundle 'JulesWang/css.vim'	
 " Bundle 'Valloric/MatchTagAlways'		
 Bundle 'gregsexton/MatchTag'
+Bundle 'kisshc/wsvn'
 
 " -----------------------------------------------------------------------------
 "  < 编码配置 >
@@ -590,7 +591,7 @@ endif
 
 
 "======================================================================================
-"							<< kisshc/Wsvn >> 自己的windows下提交与更新操作
+"							<< kisshc/wsvn >> 自己的windows下提交与更新操作
 "======================================================================================
 let g:wsvn_gui_path = "C:/\"Program Files\"/TortoiseSVN/bin/TortoiseProc.exe"
 let g:wsvn_msg_type = 2
