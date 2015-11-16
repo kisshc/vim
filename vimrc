@@ -149,7 +149,7 @@ Bundle 'OmniCppComplete'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'repeat.vim'
 Bundle 'msanders/snipmate.vim'
-Bundle 'wesleyche/SrcExpl'
+" Bundle 'wesleyche/SrcExpl'
 Bundle 'std_c.zip'
 Bundle 'tpope/vim-surround'
 Bundle 'scrooloose/syntastic'
@@ -200,9 +200,36 @@ set expandtab                                         "将Tab键转换为空格
 set tabstop=4                                         "设置Tab键的宽度，可以更改，如：宽度为2
 set shiftwidth=4                                      "换行时自动缩进宽度，可更改（宽度同tabstop）
 set smarttab                                          "指定按一次backspace就删除shiftwidth宽度
-set foldenable                                        "启用折叠
+" set foldenable                                        "启用折叠
 " set foldmethod=indent                                 "indent 折叠方式
 " set foldmethod=marker                                "marker 折叠方式
+set ignorecase                                        "搜索模式里忽略大小写
+set smartcase                                         "如果搜索模式包含大写字符，不使用 'ignorecase' 选项，只有在输入搜索模式并且打开 'ignorecase' 选项时才会使用
+" set noincsearch                                       "在输入要搜索的文字时，取消实时匹配
+
+
+" -----------------------------------------------------------------------------
+"  < 界面配置 >
+" -----------------------------------------------------------------------------
+set number                                            "显示行号
+set laststatus=1                                     "启用状态栏信息
+set cmdheight=1                                       "设置命令行的高度为2，默认为1
+" set cursorline                                        "突出显示当前行
+set guifont=set guifont=Source_Code_Pro_Light:h14 "Courier_New:h16                 		  "设置字体:字号（字体名称空格用下划线代替）
+set linespace=0
+set nowrap                                            "设置不自动换行
+set shortmess=atI                                     "去掉欢迎界面
+
+
+" -----------------------------------------------------------------------------
+"  < 其它配置 >
+" -----------------------------------------------------------------------------
+set writebackup                             "保存文件前建立备份，保存成功后删除该备份
+set nobackup                                "设置无备份文件
+" set noswapfile                              "设置无临时文件
+" set vb t_vb=                                "关闭提示音
+
+
 
 " 常规模式下用空格键来开关光标行所在折叠（注：zR 展开所有折叠，zM 关闭所有折叠）
 nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
@@ -215,10 +242,6 @@ nmap cS :%s/\s\+$//g<CR>:noh<CR>
 
 " 常规模式下输入 cM 清除行尾 ^M 符号
 nmap cM :%s/\r$//g<CR>:noh<CR>
-
-set ignorecase                                        "搜索模式里忽略大小写
-set smartcase                                         "如果搜索模式包含大写字符，不使用 'ignorecase' 选项，只有在输入搜索模式并且打开 'ignorecase' 选项时才会使用
-" set noincsearch                                       "在输入要搜索的文字时，取消实时匹配
 
 " Ctrl + K 插入模式下光标向上移动
 imap <c-k> <Up>
@@ -235,18 +258,6 @@ imap <c-l> <Right>
 " 启用每行超过80列的字符提示（字体变蓝并加下划线），不启用就注释掉
 "au BufWinEnter * let w:m2=matchadd('Underlined', '\%>' . 80 . 'v.\+', -1)
 
-
-" -----------------------------------------------------------------------------
-"  < 界面配置 >
-" -----------------------------------------------------------------------------
-set number                                            "显示行号
-set laststatus=1                                     "启用状态栏信息
-set cmdheight=1                                       "设置命令行的高度为2，默认为1
-" set cursorline                                        "突出显示当前行
-set guifont=set guifont=Source_Code_Pro_Light:h14 "Courier_New:h16                 		  "设置字体:字号（字体名称空格用下划线代替）
-set linespace=0
-set nowrap                                            "设置不自动换行
-set shortmess=atI                                     "去掉欢迎界面
 
 " 设置 gVim 窗口初始位置及大小
 if g:isGUI
@@ -281,13 +292,7 @@ if g:isGUI
     \endif<CR>
 endif
 
-" -----------------------------------------------------------------------------
-"  < 其它配置 >
-" -----------------------------------------------------------------------------
-set writebackup                             "保存文件前建立备份，保存成功后删除该备份
-set nobackup                                "设置无备份文件
-" set noswapfile                              "设置无临时文件
-" set vb t_vb=                                "关闭提示音
+
 
 " 高亮括号与运算符等
 au! BufRead,BufNewFile,BufEnter *.{c,cpp,h,java,javascript} call CSyntaxAfter()
@@ -372,7 +377,7 @@ let g:neocomplcache_enable_at_startup = 1     "vim 启动时启用插件
 " <Leader>cu 取消 /* */ 注释
 " <Leader>ca 在/*...*/与//这两种注释方式中切换（其它语言可能不一样了）
 " <Leader>cA 行尾注释
-let NERDSpaceDelims = 1                     "在左注释符之后，右注释符之前留有空格
+let NERDSpaceDelims = 0                     "在左注释符之后，右注释符之前留有空格
 
 " -----------------------------------------------------------------------------
 "  < nerdtree 插件配置 >
@@ -596,12 +601,12 @@ endif
 let g:wsvn_gui_path = "C:/\"Program Files\"/TortoiseSVN/bin/TortoiseProc.exe"
 let g:wsvn_msg_type = 2
 
-map uoo :call UpdateObjectDir()<CR>
-map coo :call CommitObjectDir()<CR>
-map udd :call UpdateCurDirAll()<CR>
-map cdd :call CommitCurDirAll()<CR>
-map uaa :call UpdateCurOneFile()<CR>
-map caa :call CommitCurOneFile()<CR>
+map foo :call UpdateObjectDir()<CR>
+map moo :call CommitObjectDir()<CR>
+map fdd :call UpdateCurDirAll()<CR>
+map mdd :call CommitCurDirAll()<CR>
+map faa :call UpdateCurOneFile()<CR>
+map maa :call CommitCurOneFile()<CR>
 
 
 "======================================================================================
