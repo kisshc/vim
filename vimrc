@@ -1,7 +1,3 @@
-" =============================================================================
-"        << 判断操作系统是 Windows 还是 Linux 和判断是终端还是 Gvim >>
-" =============================================================================
-
 " -----------------------------------------------------------------------------
 "  < 判断操作系统是否是 Windows 还是 Linux >
 " -----------------------------------------------------------------------------
@@ -149,7 +145,6 @@ Bundle 'OmniCppComplete'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'repeat.vim'
 Bundle 'msanders/snipmate.vim'
-" Bundle 'wesleyche/SrcExpl'
 Bundle 'std_c.zip'
 Bundle 'tpope/vim-surround'
 Bundle 'scrooloose/syntastic'
@@ -163,10 +158,13 @@ Bundle 'terryma/vim-multiple-cursors'
 Bundle 'xml.vim'
 Bundle 'maksimr/vim-jsbeautify'
 Bundle 'json.vim'
-Bundle 'JulesWang/css.vim'	
-" Bundle 'Valloric/MatchTagAlways'		
+Bundle 'JulesWang/css.vim'		
 Bundle 'gregsexton/MatchTag'
 Bundle 'kisshc/wsvn'
+Bundle 'vim-scripts/sessionman.vim'
+" Bundle 'Valloric/MatchTagAlways'	
+" Bundle 'wesleyche/SrcExpl'
+
 
 " -----------------------------------------------------------------------------
 "  < 编码配置 >
@@ -200,13 +198,14 @@ set expandtab                                         "将Tab键转换为空格
 set tabstop=4                                         "设置Tab键的宽度，可以更改，如：宽度为2
 set shiftwidth=4                                      "换行时自动缩进宽度，可更改（宽度同tabstop）
 set smarttab                                          "指定按一次backspace就删除shiftwidth宽度
+set ignorecase                                        "搜索模式里忽略大小写
+set smartcase                                         "如果搜索模式包含大写字符，不使用 'ignorecase' 选项，只有在输入搜索模式并且打开 
+set so=3												" 上下移动时，留3行
+
+" set noincsearch                                       "在输入要搜索的文字时，取消实时匹配
 " set foldenable                                        "启用折叠
 " set foldmethod=indent                                 "indent 折叠方式
 " set foldmethod=marker                                "marker 折叠方式
-set ignorecase                                        "搜索模式里忽略大小写
-set smartcase                                         "如果搜索模式包含大写字符，不使用 'ignorecase' 选项，只有在输入搜索模式并且打开 'ignorecase' 选项时才会使用
-" set noincsearch                                       "在输入要搜索的文字时，取消实时匹配
-
 
 " -----------------------------------------------------------------------------
 "  < 界面配置 >
@@ -215,7 +214,7 @@ set number                                            "显示行号
 set laststatus=1                                     "启用状态栏信息
 set cmdheight=1                                       "设置命令行的高度为2，默认为1
 " set cursorline                                        "突出显示当前行
-set guifont=set guifont=Source_Code_Pro_Light:h14 "Courier_New:h16                 		  "设置字体:字号（字体名称空格用下划线代替）
+set guifont=Source_Code_Pro_Light:h14 "Courier_New:h16                 		  "设置字体:字号（字体名称空格用下划线代替）
 set linespace=0
 set nowrap                                            "设置不自动换行
 set shortmess=atI                                     "去掉欢迎界面
@@ -422,6 +421,7 @@ set completeopt=menu                        "关闭预览窗口
 " 用于各种代码补全，这种补全是一种对代码中的词与代码块的缩写补全，详细用法可以参
 " 考使用说明或网络教程等。不过有时候也会与 supertab 插件在补全时产生冲突，如果大
 " 侠有什么其它解决方法希望不要保留呀
+"let g:snippets_dir = "F:/Install/Vim/vimfiles/bundle/snipmate.vim/snippets/"
 
 " -----------------------------------------------------------------------------
 "  < SrcExpl 插件配置 >
@@ -528,7 +528,7 @@ au BufRead,BufNewFile *.txt setlocal ft=txt
 "  < ctags 工具配置 >
 " -----------------------------------------------------------------------------
 " 对浏览代码非常的方便,可以在函数,变量之间跳转等
-set tags=./tags;                            "向上级目录递归查找tags文件（好像只有在Windows下才有用）
+set tags=./tags;	"向上级目录递归查找tags文件（好像只有在Windows下才有用）
 
 " -----------------------------------------------------------------------------
 "  < gvimfullscreen 工具配置 > 请确保已安装了工具
@@ -610,10 +610,19 @@ map maa :call CommitCurOneFile()<CR>
 
 
 "======================================================================================
-"							<< vim-multiple-cursors >> submit一样的多选择编辑
+"							<< vim-multiple-cursors >> 多选择编辑
 "======================================================================================
 " 在普通模式下，按下 Ctrl-n 开始进入可视模式并选中光标下的单词，
 " 继续按 Ctrl-n 选择下一个相同的单词，
 " 按下 Ctrl-p 往回选一个， 
 " Ctrl-x 则跳过下一个相同单词。
 " 按c进行编辑
+
+
+"======================================================================================
+"							<< sessionman >> 保存当前工作区
+"======================================================================================
+set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
+nmap <leader>sl :SessionList<CR>
+nmap <leader>ss :SessionSave<CR>
+nmap <leader>sc :SessionClose<CR>
