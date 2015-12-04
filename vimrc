@@ -1,3 +1,7 @@
+" =============================================================================
+"        << 判断操作系统是 Windows 还是 Linux 和判断是终端还是 Gvim >>
+" =============================================================================
+
 " -----------------------------------------------------------------------------
 "  < 判断操作系统是否是 Windows 还是 Linux >
 " -----------------------------------------------------------------------------
@@ -145,6 +149,7 @@ Bundle 'OmniCppComplete'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'repeat.vim'
 Bundle 'msanders/snipmate.vim'
+Bundle 'wesleyche/SrcExpl'
 Bundle 'std_c.zip'
 Bundle 'tpope/vim-surround'
 Bundle 'scrooloose/syntastic'
@@ -158,13 +163,10 @@ Bundle 'terryma/vim-multiple-cursors'
 Bundle 'xml.vim'
 Bundle 'maksimr/vim-jsbeautify'
 Bundle 'json.vim'
-Bundle 'JulesWang/css.vim'		
+Bundle 'JulesWang/css.vim'	
+" Bundle 'Valloric/MatchTagAlways'		
 Bundle 'gregsexton/MatchTag'
 Bundle 'kisshc/wsvn'
-Bundle 'vim-scripts/sessionman.vim'
-" Bundle 'Valloric/MatchTagAlways'	
-" Bundle 'wesleyche/SrcExpl'
-
 
 " -----------------------------------------------------------------------------
 "  < 编码配置 >
@@ -198,37 +200,9 @@ set expandtab                                         "将Tab键转换为空格
 set tabstop=4                                         "设置Tab键的宽度，可以更改，如：宽度为2
 set shiftwidth=4                                      "换行时自动缩进宽度，可更改（宽度同tabstop）
 set smarttab                                          "指定按一次backspace就删除shiftwidth宽度
-set ignorecase                                        "搜索模式里忽略大小写
-set smartcase                                         "如果搜索模式包含大写字符，不使用 'ignorecase' 选项，只有在输入搜索模式并且打开 
-set so=3												" 上下移动时，留3行
-
-" set noincsearch                                       "在输入要搜索的文字时，取消实时匹配
-" set foldenable                                        "启用折叠
+set foldenable                                        "启用折叠
 " set foldmethod=indent                                 "indent 折叠方式
 " set foldmethod=marker                                "marker 折叠方式
-
-" -----------------------------------------------------------------------------
-"  < 界面配置 >
-" -----------------------------------------------------------------------------
-set number                                            "显示行号
-set laststatus=1                                     "启用状态栏信息
-set cmdheight=1                                       "设置命令行的高度为2，默认为1
-" set cursorline                                        "突出显示当前行
-set guifont=Source_Code_Pro_Light:h14 "Courier_New:h16                 		  "设置字体:字号（字体名称空格用下划线代替）
-set linespace=0
-set nowrap                                            "设置不自动换行
-set shortmess=atI                                     "去掉欢迎界面
-
-
-" -----------------------------------------------------------------------------
-"  < 其它配置 >
-" -----------------------------------------------------------------------------
-set writebackup                             "保存文件前建立备份，保存成功后删除该备份
-set nobackup                                "设置无备份文件
-" set noswapfile                              "设置无临时文件
-" set vb t_vb=                                "关闭提示音
-
-
 
 " 常规模式下用空格键来开关光标行所在折叠（注：zR 展开所有折叠，zM 关闭所有折叠）
 nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
@@ -237,10 +211,14 @@ nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
 set autoread
 
 " 常规模式下输入 cS 清除行尾空格
-nmap cSP :%s/\s\+$//g<CR>:noh<CR>
+nmap cS :%s/\s\+$//g<CR>:noh<CR>
 
 " 常规模式下输入 cM 清除行尾 ^M 符号
 nmap cM :%s/\r$//g<CR>:noh<CR>
+
+set ignorecase                                        "搜索模式里忽略大小写
+set smartcase                                         "如果搜索模式包含大写字符，不使用 'ignorecase' 选项，只有在输入搜索模式并且打开 'ignorecase' 选项时才会使用
+" set noincsearch                                       "在输入要搜索的文字时，取消实时匹配
 
 " Ctrl + K 插入模式下光标向上移动
 imap <c-k> <Up>
@@ -257,6 +235,18 @@ imap <c-l> <Right>
 " 启用每行超过80列的字符提示（字体变蓝并加下划线），不启用就注释掉
 "au BufWinEnter * let w:m2=matchadd('Underlined', '\%>' . 80 . 'v.\+', -1)
 
+
+" -----------------------------------------------------------------------------
+"  < 界面配置 >
+" -----------------------------------------------------------------------------
+set number                                            "显示行号
+set laststatus=1                                     "启用状态栏信息
+set cmdheight=1                                       "设置命令行的高度为2，默认为1
+" set cursorline                                        "突出显示当前行
+set guifont=set guifont=Source_Code_Pro_Light:h14 "Courier_New:h16                 		  "设置字体:字号（字体名称空格用下划线代替）
+set linespace=0
+set nowrap                                            "设置不自动换行
+set shortmess=atI                                     "去掉欢迎界面
 
 " 设置 gVim 窗口初始位置及大小
 if g:isGUI
@@ -291,7 +281,13 @@ if g:isGUI
     \endif<CR>
 endif
 
-
+" -----------------------------------------------------------------------------
+"  < 其它配置 >
+" -----------------------------------------------------------------------------
+set writebackup                             "保存文件前建立备份，保存成功后删除该备份
+set nobackup                                "设置无备份文件
+" set noswapfile                              "设置无临时文件
+" set vb t_vb=                                "关闭提示音
 
 " 高亮括号与运算符等
 au! BufRead,BufNewFile,BufEnter *.{c,cpp,h,java,javascript} call CSyntaxAfter()
@@ -376,7 +372,7 @@ let g:neocomplcache_enable_at_startup = 1     "vim 启动时启用插件
 " <Leader>cu 取消 /* */ 注释
 " <Leader>ca 在/*...*/与//这两种注释方式中切换（其它语言可能不一样了）
 " <Leader>cA 行尾注释
-let NERDSpaceDelims = 0                     "在左注释符之后，右注释符之前留有空格
+let NERDSpaceDelims = 1                     "在左注释符之后，右注释符之前留有空格
 
 " -----------------------------------------------------------------------------
 "  < nerdtree 插件配置 >
@@ -421,7 +417,6 @@ set completeopt=menu                        "关闭预览窗口
 " 用于各种代码补全，这种补全是一种对代码中的词与代码块的缩写补全，详细用法可以参
 " 考使用说明或网络教程等。不过有时候也会与 supertab 插件在补全时产生冲突，如果大
 " 侠有什么其它解决方法希望不要保留呀
-let g:snippets_dir = "F:/Install/Vim/vimfiles/bundle/snipmate.vim/snippets/"
 
 " -----------------------------------------------------------------------------
 "  < SrcExpl 插件配置 >
@@ -528,7 +523,7 @@ au BufRead,BufNewFile *.txt setlocal ft=txt
 "  < ctags 工具配置 >
 " -----------------------------------------------------------------------------
 " 对浏览代码非常的方便,可以在函数,变量之间跳转等
-set tags=./tags;	"向上级目录递归查找tags文件（好像只有在Windows下才有用）
+set tags=./tags;                            "向上级目录递归查找tags文件（好像只有在Windows下才有用）
 
 " -----------------------------------------------------------------------------
 "  < gvimfullscreen 工具配置 > 请确保已安装了工具
@@ -598,34 +593,15 @@ endif
 "======================================================================================
 "							<< kisshc/wsvn >> 自己的windows下提交与更新操作
 "======================================================================================
-let g:wsvn_gui_path = "C:/\"Program Files\"/TortoiseSVN/bin/TortoiseProc.exe"
-let g:wsvn_msg_type = 2
-
-map foo :call UpdateObjectDir()<CR>
-map moo :call CommitObjectDir()<CR>
-map fdd :call UpdateCurDirAll()<CR>
-map mdd :call CommitCurDirAll()<CR>
-map faa :call UpdateCurOneFile()<CR>
-map maa :call CommitCurOneFile()<CR>
-
 
 "======================================================================================
-"							<< vim-multiple-cursors >> 多选择编辑
+"							<< vim-multiple-cursors >> submit一样的多选择编辑
 "======================================================================================
 " 在普通模式下，按下 Ctrl-n 开始进入可视模式并选中光标下的单词，
 " 继续按 Ctrl-n 选择下一个相同的单词，
 " 按下 Ctrl-p 往回选一个， 
 " Ctrl-x 则跳过下一个相同单词。
 " 按c进行编辑
-
-
-"======================================================================================
-"							<< sessionman >> 保存当前工作区
-"======================================================================================
-set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
-nmap <leader>sl :SessionList<CR>
-nmap <leader>ss :SessionSave<CR>
-nmap <leader>sc :SessionClose<CR>
 
 
  
